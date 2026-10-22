@@ -1,6 +1,6 @@
 import {loadSamples,playSample} from './sample-player.mjs?v=samples-1';
 import {chords} from './chords.mjs?v=song-8';
-import {createDwellControl,createOpenStrumControl,createNumberControl,readFingerNumber} from './gesture-control.mjs?v=number-one-fix';
+import {createDwellControl,createOpenStrumControl,createNumberControl,readFingerNumber} from './gesture-control.mjs?v=number-two-fix';
 const $=id=>document.getElementById(id);
 
 let selected=0,mode='strum',audio,master,stream,tracker,running=false,starting=false,demo=false,raf,lastFrame=-1,lastProcess=0,handStates=[{},{}],autoAllowed=false,autoTimer,arp=0,lastPluck=0,activeSources=new Set();

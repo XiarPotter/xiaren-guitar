@@ -42,6 +42,14 @@ export function readFingerNumber(l){
   const spread=((l[4].x-l[5].x)*vx+(l[4].y-l[5].y)*vy)/Math.max(width2,1e-8);
   const thumb=spread>.18&&dot(l[4],l[3],l[2])<-.35
     &&d(l[4],l[17])>d(l[3],l[17])*1.025;
+  // Victory (2) often leaves the thumb slightly outside the palm. Require a
+  // deliberate wide thumb extension for 7, rather than counting that rest pose.
+  if(open[0]&&open[1]&&!open[2]&&!open[3]){
+    const wideThumb=thumb&&spread>.6
+      &&d(l[4],l[5])>Math.sqrt(width2)*.85
+      &&dot(l[4],l[3],l[2])<-.65;
+    return wideThumb?7:2;
+  }
   return fingerPatternNumber(open,thumb);
 }
 export function fingerPatternNumber(open,thumb){
