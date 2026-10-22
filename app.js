@@ -1,6 +1,6 @@
 import {loadSamples,playSample} from './sample-player.mjs?v=samples-1';
 import {chords} from './chords.mjs?v=song-8';
-import {createDwellControl,createOpenStrumControl,createNumberControl,readFingerNumber} from './gesture-control.mjs?v=song-8';
+import {createDwellControl,createOpenStrumControl,createNumberControl,readFingerNumber} from './gesture-control.mjs?v=number-one-fix';
 const $=id=>document.getElementById(id);
 
 let selected=0,mode='strum',audio,master,stream,tracker,running=false,starting=false,demo=false,raf,lastFrame=-1,lastProcess=0,handStates=[{},{}],autoAllowed=false,autoTimer,arp=0,lastPluck=0,activeSources=new Set();
@@ -50,7 +50,7 @@ function processHands(result,time){const cv=$('overlay'),ctx=cv.getContext('2d')
   let candidate;
   for(const l of hands){
     const p=palm(l),x=1-p.x;
-    if(x<.46&&!left){left=true;candidate=numberControl.update(readFingerNumber(l),time);if(candidate.trigger){selectChord(candidate.zone);pop(chords[selected].id+' 已锁定');}}
+    if(x<.46&&!left){left=true;candidate=numberControl.update(readFingerNumber(l),time);if(candidate.trigger||(candidate.zone!==null&&candidate.progress===1&&selected!==candidate.zone)){selectChord(candidate.zone);pop(chords[selected].id+' 已锁定');}}
     else if(x>.54&&!right){right=true;if(downstroke.update(fingers(l),time))strum();}
     ctx.strokeStyle=x<.5?'#d5ec9b':'#f7d5a1';ctx.lineWidth=2;
     edges.forEach(([a,b])=>{ctx.beginPath();ctx.moveTo(...xy(l[a]));ctx.lineTo(...xy(l[b]));ctx.stroke();});

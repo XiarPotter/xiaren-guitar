@@ -35,11 +35,12 @@ export function createDownstrokeControl({distance=.075,returnDistance=.055,coold
 export function readFingerNumber(l){
   const d=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y,a.z-b.z);
   const dot=(a,b,c)=>{const u=[a.x-b.x,a.y-b.y,a.z-b.z],v=[c.x-b.x,c.y-b.y,c.z-b.z];return u.reduce((n,x,i)=>n+x*v[i],0)/(Math.hypot(...u)*Math.hypot(...v)||1);};
-  const open=[8,12,16,20].map(t=>d(l[t],l[0])>d(l[t-2],l[0])*1.14&&dot(l[t-1],l[t-2],l[t-3])<-.55);
-  // Thumb extension is measured relative to palm size rather than a strict tip/IP ratio.
-  const palmWidth=d(l[5],l[17]);
-  const thumb=d(l[4],l[5])>palmWidth*.5
-    &&dot(l[4],l[3],l[2])<-.35
+  const open=[8,12,16,20].map(t=>d(l[t],l[0])>d(l[t-2],l[0])*1.08&&dot(l[t-1],l[t-2],l[t-3])<-.35);
+  // A straight thumb resting across the palm must not turn index-only (1) into 8.
+  // Measure lateral spread beyond the index knuckle, in the palm's own 2D frame.
+  const vx=l[5].x-l[17].x,vy=l[5].y-l[17].y,width2=vx*vx+vy*vy;
+  const spread=((l[4].x-l[5].x)*vx+(l[4].y-l[5].y)*vy)/Math.max(width2,1e-8);
+  const thumb=spread>.18&&dot(l[4],l[3],l[2])<-.35
     &&d(l[4],l[17])>d(l[3],l[17])*1.025;
   return fingerPatternNumber(open,thumb);
 }
