@@ -1,3 +1,4 @@
+import {loadSamples,playSample} from './sample-player.mjs?v=samples-1';
 import {chords} from './chords.mjs?v=song-8';
 import {createDwellControl,createOpenStrumControl,createNumberControl,readFingerNumber} from './gesture-control.mjs?v=song-8';
 const $=id=>document.getElementById(id);
@@ -7,8 +8,20 @@ function diagram(frets){const rows=Math.max(4,...frets),step=72/rows;let s='<svg
 $('chords').innerHTML=chords.map((c,i)=>`<button class="chord-card" data-chord="${i}" aria-label="${c.name}，快捷键 ${i+1}"><b>${c.id}<small>${['1 指','2 指','3 指','4 指','5 指','拇指＋小指','拇指＋食指＋中指','拇指＋食指'][i]}</small></b><span>快捷键 ${i+1}</span></button>`).join('');
 function selectChord(i){selected=i;const c=chords[i];$('chord').textContent=c.id;$('chordName').textContent=c.name;$('notes').textContent=c.names;$('diagram').innerHTML=diagram(c.frets);document.querySelectorAll('[data-chord]').forEach((b,n)=>{b.classList.toggle('active',n===i);b.setAttribute('aria-pressed',String(n===i));});}
 selectChord(0);
-async function initAudio(){if(!audio){audio=new (window.AudioContext||window.webkitAudioContext)();master=audio.createGain();master.gain.value=+$('volume').value/100*.65;const limiter=audio.createDynamicsCompressor();limiter.threshold.value=-15;limiter.ratio.value=6;master.connect(limiter);limiter.connect(audio.destination);}await audio.resume();}
-function pluck(midi,delay=0,velocity=.65){if(!audio||audio.state!=='running')return;const freq=440*2**((midi-69)/12),size=Math.round(audio.sampleRate/freq),length=Math.floor(audio.sampleRate*2.7),buffer=audio.createBuffer(1,length,audio.sampleRate),data=buffer.getChannelData(0),ring=new Float32Array(size);for(let i=0;i<size;i++)ring[i]=(Math.random()*2-1)*velocity;let p=0;for(let i=0;i<length;i++){const v=ring[p];ring[p]=.497*(v+ring[(p+1)%size]);data[i]=v*Math.min(1,i/100)*Math.exp(-i/(audio.sampleRate*2));p=(p+1)%size;}const source=audio.createBufferSource();source.buffer=buffer;source.connect(master);activeSources.add(source);source.onended=()=>activeSources.delete(source);source.start(audio.currentTime+delay);}
+async function initAudio(){if(!audio){audio=new (window.AudioContext||window.webkitAudioContext)();master=audio.createGain();master.gain.value=+$('volume').value/100*.65;const limiter=audio.createDynamicsCompressor();limiter.threshold.value=-15;limiter.ratio.value=6;master.connect(limiter);limiter.connect(audio.destination);}await audio.resume();await prepareSound();}
+let soundKind='nylon',loadedSounds=new Map();
+async function prepareSound(){
+  const kind=soundKind;if(kind==='synth')return;
+  if(Array.isArray(loadedSounds.get(kind)))return;
+  if(!loadedSounds.has(kind))loadedSounds.set(kind,loadSamples(audio,kind));
+  $('soundStatus').textContent='正在加载采样…';
+  try{const samples=await loadedSounds.get(kind);loadedSounds.set(kind,samples);if(kind===soundKind)$('soundStatus').textContent='采样已就绪 · 可弹奏';}
+  catch(e){loadedSounds.delete(kind);if(kind===soundKind){soundKind='synth';$('sound').value='synth';$('soundStatus').textContent='采样未加载，已切回合成音；可重新选择重试。';}}
+}
+$('sound').onchange=async()=>{soundKind=$('sound').value;silence();$('soundStatus').textContent=soundKind==='synth'?'原版合成音': '正在加载采样…';await initAudio();};
+function pluck(midi,delay=0,velocity=.65){if(!audio||audio.state!=='running')return;
+if(soundKind!=='synth'){const samples=loadedSounds.get(soundKind);if(Array.isArray(samples))playSample(audio,master,samples,midi,delay,velocity,activeSources);return;}
+const freq=440*2**((midi-69)/12),size=Math.round(audio.sampleRate/freq),length=Math.floor(audio.sampleRate*2.7),buffer=audio.createBuffer(1,length,audio.sampleRate),data=buffer.getChannelData(0),ring=new Float32Array(size);for(let i=0;i<size;i++)ring[i]=(Math.random()*2-1)*velocity;let p=0;for(let i=0;i<length;i++){const v=ring[p];ring[p]=.497*(v+ring[(p+1)%size]);data[i]=v*Math.min(1,i/100)*Math.exp(-i/(audio.sampleRate*2));p=(p+1)%size;}const source=audio.createBufferSource();source.buffer=buffer;source.connect(master);activeSources.add(source);source.onended=()=>activeSources.delete(source);source.start(audio.currentTime+delay);}
 function pop(label){$('chordPop').textContent=label;$('chordPop').classList.remove('pop');void $('chordPop').offsetWidth;$('chordPop').classList.add('pop');}
 function strum(reverse=false){const ns=[...chords[selected].notes];if(reverse)ns.reverse();ns.forEach((n,i)=>pluck(n,i*.023,.45));pop(chords[selected].id);}
 function silence(){activeSources.forEach(s=>{try{s.stop();}catch{}});activeSources.clear();}

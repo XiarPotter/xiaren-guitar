@@ -18,3 +18,14 @@
 ## Google Fonts
 
 页面通过 Google Fonts 请求 DM Sans；未将字体文件打包到仓库，加载失败时使用系统字体。
+
+
+## 吉他采样（tonejs-instruments）
+
+- 维护者：Nicholaus P. Brosowsky / nbrosowsky。
+- 来源：https://github.com/nbrosowsky/tonejs-instruments
+- 采样许可：CC BY 3.0（https://creativecommons.org/licenses/by/3.0/），上游 README 明确区分采样许可与代码 MIT 许可。
+- 木吉他上游来源：University of Iowa Musical Instrument Samples。
+- 尼龙吉他上游来源：Freesound / quartertone / 11573 classicalguitar-multisampled。
+- 文件：`samples/acoustic/*.mp3`、`samples/nylon/*.mp3`，选取原始 MP3 文件，未编辑；播放时会做音量归一化、移调和短淡入淡出。
+- 上游许可声明及来源清单随附于 `samples/UPSTREAM-README.md`、`samples/UPSTREAM-LICENSE.md`、`samples/UPSTREAM-sample-source-info.txt`。其中 LICENSE.md 是代码的 MIT 许可，音频适用上文 CC BY 3.0。
