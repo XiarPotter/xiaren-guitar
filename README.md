@@ -2,7 +2,7 @@
 
 用摄像头识别手势，在浏览器里弹奏吉他和弦和旋律。不需要实体吉他、MIDI 设备或麦克风。
 
-**在线弹奏：[https://xiarpotter.github.io/air-strings/](https://xiarpotter.github.io/air-strings/)**
+**在线弹奏：[https://xiarpotter.github.io/xiaren-guitar/](https://xiarpotter.github.io/xiaren-guitar/)**
 
 > 建议使用桌面 Chrome 或 Edge。首次打开需加载约 17 MB 的识别运行库及模型，启动速度取决于网络。点击“开启摄像头”并允许摄像头权限后开始。
 
