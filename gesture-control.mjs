@@ -41,6 +41,11 @@ export function readFingerNumber(l){
   const thumb=d(l[4],l[5])>palmWidth*.5
     &&dot(l[4],l[3],l[2])<-.35
     &&d(l[4],l[17])>d(l[3],l[17])*1.025;
+  return fingerPatternNumber(open,thumb);
+}
+export function fingerPatternNumber(open,thumb){
+  if(thumb&&open[0]&&!open[1]&&!open[2]&&!open[3])return 8;
+  if(thumb&&open[0]&&open[1]&&!open[2]&&!open[3])return 7;
   if(thumb&&open[3]&&!open[0]&&!open[1]&&!open[2])return 6;
   const count=open.filter(Boolean).length+(thumb?1:0);
   return count||null;
